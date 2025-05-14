@@ -91,7 +91,7 @@
                             <div class="card-author-info">
                                 <img src="{{ url_for('static', filename='uploads/' + pub.auteur.photo) if pub.auteur.photo else url_for('static', filename='img/default_user.png') }}" alt="Photo de profil" class="author-photo">
                                 {% if current_user.is_authenticated %}
-                                    <a href="{{ url_for('auth.profil', id=pub.auteur.id) }}" class="author-name-link"> {{ "vous" if pub.auteur else "Utilisateur inconnu"}} -<span class="author-name" ></span></a>
+                                    <a href="{{ url_for('auth.profil', id=pub.auteur.id) }}" class="author-name-link"> {{ pub.auteur.nom if pub.auteur else "Utilisateur inconnu"}} -<span class="author-name" ></span></a>
                                 {% else %}
                                     <a href="{{ url_for('auth.profil', id=pub.auteur.id) }}" class="author-name-link"> {{ pub.auteur.nom if pub.auteur else "Utilisateur inconnu"}} -<span class="author-name" ></span></a>
                                 {% endif %}
