@@ -1,0 +1,219 @@
+/* === STYLES POUR LA PAGE ARTICLE === */
+.article-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: var(--white, #FFFFFF);
+    border-radius: var(--radius, 12px);
+    box-shadow: var(--shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
+    transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 55%;
+    overflow:hidden;
+    
+    
+  }
+
+  .former-container{
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    position: sticky;
+    max-width: none;
+    width: 100%;
+    margin: 0 auto;
+    top: 0rem;
+    animation: fadeIn 0.5s ease;
+    position: relative;
+    
+  }
+  
+
+  .commentaires {
+    overflow: scroll;
+    
+  }
+  
+  .comment-section {
+    margin-top: 2rem;
+  }
+  
+  .comment {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: var(--radius, 12px);
+    background-color: var(--white, #FFFFFF);
+    box-shadow: var(--shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  
+  .comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .comment-body {
+    flex: 1;
+  }
+  
+  .comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .comment-author {
+    font-weight: 600;
+    color: var(--primary, #33b7eb);
+    font-size: 1rem;
+  }
+  
+  .comment-date {
+    font-size: 0.85rem;
+    color: #666;
+  }
+  
+  .comment-content {
+    font-size: 1rem;
+    color: var(--dark, #333333);
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+  }
+  
+  .comment-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .reply-btn {
+    background: none;
+    border: none;
+    color: var(--secondary, #328CC1);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .reply-btn:hover {
+    color: var(--accent, #FFD700);
+  }
+  
+  .reply-form {
+    display: none;
+    margin-top: 1rem;
+    padding-left: 2rem;
+  }
+  
+  .reply-form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: var(--radius, 12px);
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+  
+  .comment-thread {
+    position: relative;
+    padding-left: 2rem;
+  }
+  
+  .comment-thread::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--secondary, #328CC1);
+    opacity: 0.3;
+  }
+  
+  .card-actions .vote-btn {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .card-actions .vote-btn:hover {
+    color: var(--secondary, #328CC1);
+  }
+  
+  .card-actions .comment-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+  }
+  
+  .card-actions .comment-link:hover {
+    color: var(--secondary, #328CC1);
+  }
+  
+  /* === RESPONSIVE === */
+  @media (max-width: 768px) {
+    .article-container {
+      padding: 1rem;
+    }
+  
+    .comment {
+      padding: 0.75rem;
+    }
+  
+    .comment-avatar {
+      width: 32px;
+      height: 32px;
+    }
+  
+    .comment-author {
+      font-size: 0.9rem;
+    }
+  
+    .comment-date {
+      font-size: 0.75rem;
+    }
+  
+    .comment-content {
+      font-size: 0.9rem;
+    }
+  
+    .reply-form {
+      padding-left: 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .comment {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  
+    .comment-avatar {
+      width: 28px;
+      height: 28px;
+    }
+  
+    .comment-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+  
+    .reply-btn {
+      font-size: 0.85rem;
+    }
+  }

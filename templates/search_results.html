@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Résultats pour "{{ query }}"{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="card animated">
+    <h2 class="card-title">Résultats de recherche pour : <em>{{ query }}</em></h2>
+
+    {% if utilisateurs %}
+        <h3 style="color: #328CC1; font-size: 1.5rem;">Utilisateurs</h3>
+        <ul>
+            {% for u in utilisateurs %}
+                <li class="card-content">
+                    {{ u.nom }} ({{ u.email }}) <a href="{{ url_for('auth.profil', id=u.id) }}" class="btn-primary" style="text-decoration: none;"> Voir profil </a>
+
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if publications %}
+        <h3 style="color: #328CC1; font-size: 1.5rem;">Publications</h3>
+        {% for pub in publications %}
+            <div class="card animated" style="padding: 10px; margin-bottom: 10px;">
+                <h3 class="card-title">{{ pub.titre|replace(query, "<mark>" ~ query ~ "</mark>")|safe }}</h3>
+                <p class="card-content">
+                    {{ pub.texte[:200]|replace(query, "<mark>" ~ query ~ "</mark>")|safe }}
+                    {% if pub.texte|length > 200 %}...{% endif %}
+                </p>
+                <a href="{{ url_for('posts.voir_publication', pub_id=pub.id) }}" class="btn-primary" style="text-decoration: none;">Voir plus</a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="card-content">Aucune publication trouvée.</p>
+    {% endif %}
+</div>
+{% endblock %}

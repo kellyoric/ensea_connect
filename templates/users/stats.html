@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Statistiques de {{ user.nom }}{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_stats.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="stats-container">
+        <div class="stats-card">
+            <div class="profile-overview">
+                <img src="{{ url_for('static', filename='uploads/' + user.photo) if user.photo else url_for('static', filename='img/image1.jpg') }}" class="user-photo-large" alt="Photo de profil">
+                <div class="profile-info">
+                    <h3>{{ user.nom }}</h3>
+                    <p>{{ user.bio or "Aucune biographie renseignée." }}</p>
+                </div>
+            </div>
+
+            <h2 class="card-title">Statistiques de profil</h2>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <i class="fas fa-eye"></i>
+                    <div class="stat-value">{{ stats.vues_profil }}</div>
+                    <div class="stat-label">Vues de profil</div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="stat-value">{{ stats.publications }}</div>
+                    <div class="stat-label">Publications</div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-comment"></i>
+                    <div class="stat-value">{{ stats.commentaires }}</div>
+                    <div class="stat-label">Commentaires</div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-paper-plane"></i>
+                    <div class="stat-value">{{ stats.messages_envoyes }}</div>
+                    <div class="stat-label">Messages envoyés</div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-inbox"></i>
+                    <div class="stat-value">{{ stats.messages_recus }}</div>
+                    <div class="stat-label">Messages reçus</div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-bell"></i>
+                    <div class="stat-value">{{ stats.notifications }}</div>
+                    <div class="stat-label">Notifications</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

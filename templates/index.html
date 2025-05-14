@@ -1,0 +1,204 @@
+<!-- Nouveau template d'accueil modernisé inspiré de LinkedIn avec sidebar à gauche -->
+{% extends 'base.html' %}
+
+{% block title %}Accueil - ENSEA Connect{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_profil.css') }}">
+
+{% endblock %}
+
+{% macro format_file_size(size) %}
+    {% if size is none %}
+        "Taille inconnue"
+    {% else %}
+        {% set size = size|float %}
+        {% if size >= 1024 * 1024 %}
+            {{ "%.2f"|format(size / (1024 * 1024)) }} Mo
+        {% elif size >= 1024 %}
+            {{ "%.2f"|format(size / 1024) }} Ko
+        {% else %}
+            {{ size|int }} octets
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{% block content %}
+    
+    <div class="page-layout linkedin-style">
+        <!-- Sidebar à gauche -->
+        <aside class="sidebar" style="font-size: xx-large;">
+            <div class="sidebar-section">
+                {% if current_user.is_authenticated %}
+                    <div class="user-card">
+                        <img src="{{ url_for('static', filename='uploads/' + current_user.photo) if current_user.photo else url_for('static', filename='img/default_user.png') }}" class="user-photo">
+                        <h3>{{ current_user.nom }}</h3>
+                        <h3 style="font-size: large;">{{ current_user.statut }}</h3>
+                        <p class="user-info">{{ current_user.bio if current_user.bio and current_user.bio.strip() else "Ajoutez une courte biographie dans votre profil." }}</p>
+                        <a href="{{ url_for('auth.profil', id=current_user.id) }}" class="btn-primary"><i class="fas fa-eye"></i> Voir mon profil</a>
+                        <a href="{{ url_for('users.edit_profile') }}" class="btn-primary"><i class="fas fa-pen"></i> Modifier mon profil</a>
+                    </div>
+
+                    <div class="stats-grid" >
+                        <div class="stat-item" style="height: 90%; padding-top: 0rem;">
+                            <i class="fas fa-eye" ></i>
+                            <div class="stat-value">{{ stats.vues_profil }}</div>
+                            <div class="stat-label">Vues de profil</div>
+                        </div>
+                        <div class="stat-item" style="height: 90%; padding-top: 0rem;">
+                            <i class="fas fa-file-alt"></i>
+                            <div class="stat-value">{{ stats.publications }}</div>
+                            <div class="stat-label">Publications</div>
+                        </div>
+                    </div>
+
+                    <div class="user-card">
+                        <a href="{{ url_for('users.profile_stats', user_id=current_user.id) }}" class="btn-primary"><i class="fas fa-eye"></i> Voir toutes les statistiques</a>
+                    </div>
+                {% else %}
+                    <div class="user-card">
+                        <p><a href="{{ url_for('auth.login') }}">Connectez-vous pour personnaliser votre expérience</a></p>
+                    </div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Contenu principal -->
+        <div class="main-feed">
+            {% if current_user.is_authenticated %}
+            <section class="post-box">
+                <form method="GET" action="{{ url_for('posts.poster') }}">
+                    <textarea placeholder="Commencer un post..." rows="3" style=" height: 4rem; background-color: #F5F5F5;" ;></textarea>
+                    <div class="post-actions">
+                        <a href="{{ url_for('posts.poster') }}" class="btn-primary"><i class="fas fa-video"></i> Vidéo</a>
+                        <a href="{{ url_for('posts.poster') }}" class="btn-primary"><i class="fas fa-image"></i> Photo</a>
+                        <a href="{{ url_for('posts.poster') }}" class="btn-primary"><i class="fas fa-pen"></i> Rédiger un article</a>
+                    </div>
+                </form>
+            </section>
+            {% endif %}
+            
+            <h2 class="feed-title">Fil d'actualité</h2>
+
+            
+            <div class="fil">
+                {% for pub in publications %}
+                    <article class="card">
+                        <div class="card-header">
+                            <div class="card-author-info">
+                                <img src="{{ url_for('static', filename='uploads/' + pub.auteur.photo) if pub.auteur.photo else url_for('static', filename='img/default_user.png') }}" alt="Photo de profil" class="author-photo">
+                                {% if current_user.is_authenticated %}
+                                    <a href="{{ url_for('auth.profil', id=pub.auteur.id) }}" class="author-name-link"> {{ "vous" if pub.auteur else "Utilisateur inconnu"}} -<span class="author-name" ></span></a>
+                                {% else %}
+                                    <a href="{{ url_for('auth.profil', id=pub.auteur.id) }}" class="author-name-link"> {{ pub.auteur.nom if pub.auteur else "Utilisateur inconnu"}} -<span class="author-name" ></span></a>
+                                {% endif %}
+                            </div>
+                            
+                            <span class="card-author" style="color: #328CC1; font-size: medium;">{{ pub.auteur.statut if pub.auteur else "statut inconnu" }}</span>
+                            <span class="card-date" data-timestamp="{{ pub.date_post.isoformat() }}">
+                                - {{ pub.date_post.strftime('%d/%m/%Y à %H:%M') }}
+                            </span>
+                            <span class="category-tag">
+                                <i class="fas fa-tag"></i> {{ pub.catégorie }}
+                            </span>
+                        </div>
+
+                        {% if pub.titre %}
+                            <h3 class="card-title">{{ pub.titre }}</h3>
+                        {% endif %}
+
+                        {% if pub.texte %}
+                            <div class="card-content">{{ pub.texte }}</div>
+                        {% endif %}
+
+                        {% if pub.media %}
+                            {% set ext = pub.media.split('.')[-1].lower() %}
+                            <div class="media-container">
+                                {% if ext in ['jpg', 'jpeg', 'png', 'gif'] %}
+                                    <img src="{{ url_for('static', filename='uploads/' + pub.media) }}" class="card-media">
+                                {% elif ext in ['mp4', 'webm', 'ogg'] %}
+                                    <video class="card-media" controls>
+                                        <source src="{{ url_for('static', filename='uploads/' + pub.media) }}" type="video/{{ ext }}">
+                                        Vidéo non supportée.
+                                    </video>
+                                {% elif ext in ['mp3', 'wav'] %}
+                                    <audio controls class="card-media">
+                                        <source src="{{ url_for('static', filename='uploads/' + pub.media) }}" type="audio/{{ ext }}">
+                                        Audio non supporté.
+                                    </audio>
+                                {% else %}
+                                    <a href="{{ url_for('static', filename='uploads/' + pub.media) }}" class="file-attachment" download>
+                                        <i class="fas {{ 'fa-file-pdf' if ext == 'pdf' else 'fa-file-word' if ext in ['doc', 'docx'] else 'fa-file' }} file-icon"></i>
+                                        <div class="file-info">
+                                            <div class="file-name">{{ pub.media }}</div>
+                                            <div class="file-size">{{ format_file_size(pub.file_size) }}</div>
+                                        </div>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="card-actions">
+                            <a href="{{ url_for('posts.voir_publication', pub_id=pub.id) }}" class="btn-primaryly" style="margin-right: 43rem;">
+                                <i class="fas fa-comment"></i> Commenter
+                            </a>
+                            
+                            <form method="POST" action="{{ url_for('posts.voter', publication_id=pub.id) }}" class="vote-form">
+                                <input type="hidden" name="valeur" value="1">
+                                <button type="submit" class="vote-btn upvote"><i class="fas fa-thumbs-up"></i></button>
+                            </form>
+                            <form method="POST" action="{{ url_for('posts.voter', publication_id=pub.id) }}" class="vote-form">
+                                <input type="hidden" name="valeur" value="-1">
+                                <button type="submit" class="vote-btn downvote"><i class="fas fa-thumbs-down"></i></button>
+                            </form>
+                            <span class="vote-count">{{ pub.votes }} vote{{ 's' if pub.votes != 1 else '' }}</span>
+                        </div>
+                    </article>
+            
+                
+                {% else %}
+                    <div class="no-content">
+                        <i class="fas fa-inbox fa-4x"></i>
+                        <p>Aucune publication pour l'instant.</p>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('posts.poster') }}" class="btn-primary">Publier maintenant</a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Sidebar droite -->
+        <aside class="right-sidebar">
+            <div class="filter-box">
+                <h4>Filtrer les publications</h4>
+                <form method="GET" action="{{ url_for('posts.accueil') }}">
+                    <div class="form-group">
+                        <label for="tri">Trier par :</label>
+                        <select name="tri" id="tri">
+                            <option value="date" {% if tri == 'date' %}selected{% endif %}>Date</option>
+                            <option value="votes" {% if tri == 'votes' %}selected{% endif %}>Popularité</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="categorie">Catégorie :</label>
+                        <select name="categorie" id="categorie">
+                            <option value="">Toutes</option>
+                            <option value="cours" {% if categorie == 'cours' %}selected{% endif %}>Cours</option>
+                            <option value="bourse" {% if categorie == 'bourse' %}selected{% endif %}>Bourse</option>
+                            <option value="emploi" {% if categorie == 'emploi' %}selected{% endif %}>Emploi</option>
+                            <option value="événement" {% if categorie == 'événement' %}selected{% endif %}>Événement</option>
+                            <option value="divertissement" {% if categorie == 'divertissement' %}selected{% endif %}>Divertissement</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Filtrer</button>
+                </form>
+            </div>
+        </aside>
+    </div>
+
+{% endblock %}
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93f84e752cdab0cf',t:'MTc0NzIwMzgwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>

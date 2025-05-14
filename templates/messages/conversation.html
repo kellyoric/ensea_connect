@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Conversation{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_conversation.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="conversation-container">
+        <div class="conversation-header">
+            <h2 class="conversation-title">Conversation avec {{ interlocuteur.nom }}</h2>
+        </div>
+        <div class="message-list">
+            {% for msg in messages %}
+                {% set is_me = msg.expediteur_id == current_user.id %}
+                <div class="message-bubble {{ 'me' if is_me else 'them' }}">
+                    <img src="{{ url_for('static', filename='uploads/' + msg.expediteur.photo) if msg.expediteur.photo else url_for('static', filename='img/default_user.png') }}" alt="Avatar" class="message-avatar">
+                    <div class="message-content">
+                        <p><strong>{{ msg.expediteur.nom if not is_me else 'Vous' }} :</strong></p>
+                        <p>{{ msg.contenu }}</p>
+                        {% if msg.fichier %}
+                            <div class="message-file">
+                                {% set ext = msg.fichier.split('.')[-1].lower() %}
+                                {% if ext in ['jpg', 'jpeg', 'png', 'gif'] %}
+                                    <img src="{{ url_for('static', filename='uploads/' + msg.fichier) }}" alt="Image">
+                                {% elif ext in ['mp4', 'webm'] %}
+                                    <video controls>
+                                        <source src="{{ url_for('static', filename='uploads/' + msg.fichier) }}" type="video/{{ ext }}">
+                                        Votre navigateur ne supporte pas la vidéo.
+                                    </video>
+                                {% elif ext in ['mp3', 'wav'] %}
+                                    <audio controls>
+                                        <source src="{{ url_for('static', filename='uploads/' + msg.fichier) }}" type="audio/{{ ext }}">
+                                        Votre navigateur ne supporte pas la lecture audio.
+                                    </audio>
+                                {% elif ext in ['pdf'] %}
+                                    <a href="{{ url_for('static', filename='uploads/' + msg.fichier) }}" target="_blank">📄 Voir le PDF</a>
+                                {% else %}
+                                    <a href="{{ url_for('static', filename='uploads/' + msg.fichier) }}" download>📎 Télécharger le fichier joint</a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        <div class="message-meta">{{ msg.date_envoi.strftime('%d/%m/%Y %H:%M') }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="input-area">
+            <form method="POST" enctype="multipart/form-data">
+                <textarea name="contenu" rows="3" placeholder="Écris un message..." required></textarea>
+                <input type="file" name="fichier">
+                <button type="submit">Envoyer</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

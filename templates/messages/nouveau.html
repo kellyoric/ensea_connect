@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% block title %}Envoyer un message{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <style>
+        .form-container {
+            background: linear-gradient(90deg, var(--white, #FFFFFF) 0%, var(--secondary, #F5F5F5) 100%);
+            
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--dark, #333333);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark, #333333);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        select, textarea, input[type="file"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: var(--radius, 8px);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--secondary, #328CC1);
+            color: white;
+            border-radius: var(--radius, 12px);
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: var(--accent, #FFD700);
+            color: var(--dark, #333333);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 5px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .preview-container {
+            margin-top: 10px;
+            max-width: 300px;
+        }
+
+        .preview-container img,
+        .preview-container video,
+        .preview-container audio {
+            max-width: 100%;
+            border-radius: var(--radius, 12px);
+            box-shadow: var(--shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
+        }
+
+        .preview-container embed {
+            max-width: 100%;
+            border-radius: var(--radius, 12px);
+            box-shadow: var(--shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
+        }
+
+        .preview-container .no-preview {
+            color: #666;
+            font-style: italic;
+        }
+
+        
+
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            select, textarea, button[type="submit"] {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>Envoyer un message</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <label for="destinataire_id">Destinataire :</label><br>
+            <select name="destinataire_id" id="destinataire_id">
+                {% for u in utilisateurs %}
+                    <option value="{{ u.id }}">{{ u.nom }}</option>
+                {% endfor %}
+            </select><br><br>
+            <label>Message :</label><br>
+            <textarea name="contenu" rows="4" cols="50" placeholder="Écris un message..." required></textarea><br>
+            <div class="form-group">
+                <label><i class="fas fa-file-upload"></i>       Fichier média (image, vidéo, PDF...) :</label>
+                <div class="custom-file-upload" onclick="document.getElementById('media').click();">  <i class="fas fa-upload"></i> Choisir un fichier</div>
+                <input type="file" id="media" name="media" class="file-input" onchange="updateFileNameAndPreview()">
+                <span class="file-name">Aucun fichier n'a été sélectionné</span>
+                <div class="preview-container" id="preview"></div>
+            </div>
+            
+            <div class="auth-footer" style="text-align: center;">
+                <button type="submit" class="btn-primary">Envoyer</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        function updateFileNameAndPreview() {
+            const fileInput = document.getElementById('media');
+            const fileNameSpan = document.querySelector('.file-name');
+            const previewContainer = document.getElementById('preview');
+
+            if (fileInput.files.length > 0) {
+                fileNameSpan.textContent = fileInput.files[0].name;
+                const file = fileInput.files[0];
+                previewContainer.innerHTML = ''; // Efface l'aperçu précédent
+
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file.type.startsWith('video/')) {
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    const source = document.createElement('source');
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        source.src = e.target.result;
+                        video.appendChild(source);
+                        previewContainer.appendChild(video);
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file.type.startsWith('audio/')) {
+                    const audio = document.createElement('audio');
+                    audio.controls = true;
+                    const source = document.createElement('source');
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        source.src = e.target.result;
+                        audio.appendChild(source);
+                        previewContainer.appendChild(audio);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    const noPreview = document.createElement('span');
+                    noPreview.className = 'no-preview';
+                    noPreview.textContent = 'Aperçu non disponible pour ce type de fichier';
+                    previewContainer.appendChild(noPreview);
+                }
+            } else {
+                fileNameSpan.textContent = 'Aucun fichier n\'a été sélectionné';
+                previewContainer.innerHTML = '';
+            }
+        }
+    </script>
+{% endblock %}

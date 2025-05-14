@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% block title %}Boîte de réception{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_inbox.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="inbox-container">
+        <!-- Colonne gauche : Liste des conversations -->
+        <div class="inbox-left">
+            <div class="inbox-card">
+                <div class="inbox-header">
+                    <h2 class="inbox-title">Messages</h2>
+                    <a href="{{ url_for('messages.nouveau_message') }}" class="btn-primary" style="text-decoration: none;">✉️ Nouveau message</a>
+                </div>
+
+                <div class="unbox-card">
+                    <ul class="conversation-list" id="conversation-list">
+                        {% for conv in conversations %}
+                            <li class="conversation-item" data-user-id="{{ conv.interlocuteur.id }}">
+                                <img src="{{ url_for('static', filename='uploads/' + conv.interlocuteur.photo) if conv.interlocuteur.photo else url_for('static', filename='img/default_user.png') }}" alt="Avatar" class="conversation-avatar">
+                                <div class="conversation-info">
+                                    <div class="conversation-name {{ 'unread' if conv.has_unread else '' }}">{{ conv.interlocuteur.nom }}</div>
+                                    <div class="conversation-preview">
+                                        {% if conv.messages %}
+                                            <span><strong>{{ 'Vous' if (conv.messages|last).expediteur_id == current_user.id else (conv.messages|last).expediteur.nom }} :</strong> {{ (conv.messages|last).contenu[:60] }}{% if (conv.messages|last).contenu|length > 60 %}...{% endif %}</span>
+                                        {% else %}
+                                            Aucun message
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="conversation-date">
+                                    {% if conv.messages %}
+                                        {{ (conv.messages|last).date_envoi.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                        Aucune date
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% if not conversations %}
+                        <div class="no-messages">Aucun message pour le moment.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne droite : Conversation sélectionnée -->
+        <div class="inbox-right" id="conversation-panel">
+            <div class="conversation-header">
+                <h2 class="conversation-title" id="conversation-title">Sélectionnez une conversation</h2>
+            </div>
+            <div class="message-list" id="message-list"></div>
+            <div class="input-area" id="input-area" style="display: none;">
+                <form id="message-form" enctype="multipart/form-data">
+                    <input type="hidden" name="utilisateur_id" id="utilisateur_id">
+                    <textarea name="contenu" rows="3" placeholder="Écris un message..."></textarea>
+                    <input type="file" name="fichier" id="file-input" multiple>
+                    <button type="submit" class="btn-primary">Envoyer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const conversationItems = document.querySelectorAll('.conversation-item');
+            const conversationPanel = document.getElementById('conversation-panel');
+            const messageList = document.getElementById('message-list');
+            const conversationTitle = document.getElementById('conversation-title');
+            const inputArea = document.getElementById('input-area');
+            const messageForm = document.getElementById('message-form');
+            const utilisateurIdInput = document.getElementById('utilisateur_id');
+            const fileInput = document.getElementById('file-input');
+            const previewContainer = document.getElementById('preview-container');
+
+            function loadConversation(userId) {
+                fetch(`/messages/api/conversation/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    conversationTitle.textContent = `Discussion avec ${data.interlocuteur.nom}`;
+                    conversationPanel.classList.add('active');
+                    inputArea.style.display = 'flex';
+                    utilisateurIdInput.value = userId;
+
+                    messageList.innerHTML = '';
+
+                    data.messages.forEach(msg => {
+                        const isMe = msg.expediteur_id === data.current_user_id;
+
+                        // Afficher le texte (s'il existe) dans une bulle
+                        if (msg.contenu) {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = `message-bubble ${isMe ? 'me' : 'them'}`;
+                            messageDiv.innerHTML = `
+                                <div class="message-content">
+                                    <p>${msg.contenu}</p>
+                                    <div class="message-meta">${msg.date_envoi}</div>
+                                </div>
+                            `;
+                            messageList.appendChild(messageDiv);
+                        }
+
+                        // Afficher le fichier (s'il existe) séparément
+                        if (msg.fichier) {
+                            const fileDiv = document.createElement('div');
+                            fileDiv.className = `message-file-container ${isMe ? 'me' : 'them'}`;
+                            fileDiv.innerHTML = `
+                                <div class="message-file">
+                                    ${msg.fichier.endsWith('.jpg') || msg.fichier.endsWith('.jpeg') || msg.fichier.endsWith('.png') || msg.fichier.endsWith('.gif') ?
+                                        `<img src="/static/uploads/${msg.fichier}" alt="Image">` :
+                                        msg.fichier.endsWith('.mp4') || msg.fichier.endsWith('.webm') ?
+                                        `<video controls><source src="/static/uploads/${msg.fichier}" type="video/${msg.fichier.split('.').pop()}"></video>` :
+                                        msg.fichier.endsWith('.mp3') || msg.fichier.endsWith('.wav') ?
+                                        `<audio controls><source src="/static/uploads/${msg.fichier}" type="audio/${msg.fichier.split('.').pop()}"></audio>` :
+                                        msg.fichier.endsWith('.pdf') ?
+                                        `<a href="/static/uploads/${msg.fichier}" target="_blank">📄 Voir le PDF</a>` :
+                                        `<a href="/static/uploads/${msg.fichier}" download>📎 Télécharger le fichier joint</a>`}
+                                </div>
+                                <div class="message-meta">${msg.date_envoi}</div>
+                            `;
+                            messageList.appendChild(fileDiv);
+                        }
+                    });
+
+                    messageList.scrollTop = messageList.scrollHeight;
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement de la conversation:', error);
+                    messageList.innerHTML = '<p>Erreur lors du chargement de la conversation.</p>';
+                });
+            }
+
+            // Prévisualisation des fichiers
+            fileInput.addEventListener('change', (e) => {
+                previewContainer.innerHTML = '';
+                const files = e.target.files;
+                for (let file of files) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'preview-item';
+                        if (file.type.startsWith('image/')) {
+                            previewDiv.innerHTML = `<img src="${event.target.result}" alt="Prévisualisation" class="preview-image">`;
+                        } else if (file.type.startsWith('video/')) {
+                            previewDiv.innerHTML = `<video controls><source src="${event.target.result}" type="${file.type}"></video>`;
+                        } else if (file.type.startsWith('audio/')) {
+                            previewDiv.innerHTML = `<audio controls><source src="${event.target.result}" type="${file.type}"></audio>`;
+                        } else {
+                            previewDiv.innerHTML = `<p>${file.name} (prévisualisation non disponible)</p>`;
+                        }
+                        previewContainer.appendChild(previewDiv);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            conversationItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const userId = item.getAttribute('data-user-id');
+
+                    conversationItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+
+                    loadConversation(userId);
+                });
+            });
+
+            messageForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(messageForm);
+                const userId = utilisateurIdInput.value;
+                const contenu = messageForm.querySelector('textarea').value.trim();
+                const files = fileInput.files;
+
+                console.log('Contenu:', contenu);
+                console.log('Fichiers sélectionnés:', files.length, files);
+
+                if (!contenu && files.length === 0) {
+                    alert('Veuillez entrer un message ou sélectionner un fichier.');
+                    return;
+                }
+
+                fetch(`/messages/conversation/${userId}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Réponse du serveur:', response.status, response.statusText);
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Erreur lors de l\'envoi');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Données renvoyées par le serveur:', data);
+                    if (data.success) {
+                        loadConversation(userId);
+                        messageForm.querySelector('textarea').value = '';
+                        fileInput.value = '';
+                        previewContainer.innerHTML = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de l\'envoi du message:', error);
+                    alert('Erreur lors de l\'envoi du message. Vérifiez la console pour plus de détails.');
+                });
+            });
+
+            if (conversationItems.length > 0) {
+                const firstItem = conversationItems[0];
+                firstItem.classList.add('active');
+                const userId = firstItem.getAttribute('data-user-id');
+                loadConversation(userId);
+            }
+        });
+    </script>
+{% endblock %}

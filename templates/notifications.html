@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="card animated">
+        <h2 class="card-title">Vos notifications</h2>
+        <ul>
+            {% for notif in notifications %}
+                <li class="card-content">
+                    {{ notif.message }} · 
+                    <span class="card-date" data-timestamp="{{ notif.date.isoformat() }}">{{ notif.date.strftime('%d/%m/%Y %H:%M') }}</span>
+                    <a href="{{ notif.url }}" class="btn-primaryly" style="text-decoration: none;">Voir</a> ·
+                </li>
+            {% else %}
+                <li class="card-content">Vous n'avez aucune notification.</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

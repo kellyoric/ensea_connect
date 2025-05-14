@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Modifier la publication{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <style>
+        .custom-file-upload {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--secondary, #328CC1);
+            color: white;
+            border-radius: var(--radius, 12px);
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: var(--accent, #FFD700);
+            color: var(--dark, #333333);
+        }
+
+        .form-container {
+            background: linear-gradient(90deg, var(--white, #FFFFFF) 0%, var(--secondary, #F5F5F5) 100%);
+
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 5px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .preview-container {
+            margin-top: 10px;
+            max-width: 300px;
+        }
+
+        .preview-container img,
+        .preview-container video,
+        .preview-container audio {
+            max-width: 100%;
+            border-radius: var(--radius, 12px);
+            box-shadow: var(--shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
+        }
+
+        .preview-container embed {
+            max-width: 100%;
+            border-radius: var(--radius, 12px);
+            box-shadow: var(--shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
+        }
+
+        .preview-container .no-preview {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <div class="form-container animated">
+        <h2 class="card-title" style="text-align: center; font-weight: bold; font-size: 55px;">Modifier votre publication</h2>
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('posts.modifier_publication', pub_id=publication.id) }}">
+            <div class="form-group">
+                <label for="titre"><i class="fas fa-heading"></i> Titre (optionnel)</label>
+                <input type="text" id="titre" name="titre" value="{{ publication.titre }}">
+            </div>
+
+            <div class="form-group">
+                <label for="texte"><i class="fas fa-comment"></i> Texte</label>
+                <textarea id="texte" name="texte" rows="5" cols="60" required>{{ publication.texte }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="url"><i class="fas fa-link"></i> Lien (optionnel)</label>
+                <input type="url" id="url" name="url" value="{{ publication.url }}">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-file-upload"></i>   Fichier média (image, vidéo, PDF, audio...)</label>
+                <div class="custom-file-upload" onclick="document.getElementById('media').click();">  <i class="fas fa-upload"></i>  Choisir un fichier</div>
+                <input type="file" id="media" name="media" class="file-input" onchange="updateFileNameAndPreview()">
+                <span class="file-name">Aucun fichier n'a été sélectionné</span>
+                <div class="preview-container" id="preview"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="catégorie"><i class="fas fa-tag"></i> Catégorie</label>
+                <select id="catégorie" name="catégorie" required>
+                    <option value="cours" {% if publication.catégorie == 'cours' %}selected{% endif %}>Cours</option>
+                    <option value="bourse" {% if publication.catégorie == 'bourse' %}selected{% endif %}>Bourse</option>
+                    <option value="emploi" {% if publication.catégorie == 'emploi' %}selected{% endif %}>Emploi</option>
+                    <option value="événement" {% if publication.catégorie == 'événement' %}selected{% endif %}>Événement</option>
+                    <option value="divertissement" {% if publication.catégorie == 'divertissement' %}selected{% endif %}>Divertissement</option>
+                </select>
+            </div>
+
+            <div class="auth-footer" style="text-align: center;">
+                <button type="submit" class="btn-primary"><i class="fas fa-save"></i>       Modifier</button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        function updateFileNameAndPreview() {
+            const fileInput = document.getElementById('media');
+            const fileNameSpan = document.querySelector('.file-name');
+            const previewContainer = document.getElementById('preview');
+
+            if (fileInput.files.length > 0) {
+                fileNameSpan.textContent = fileInput.files[0].name;
+                const file = fileInput.files[0];
+                previewContainer.innerHTML = ''; // Efface l'aperçu précédent
+
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file.type.startsWith('video/')) {
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    const source = document.createElement('source');
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        source.src = e.target.result;
+                        video.appendChild(source);
+                        previewContainer.appendChild(video);
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file.type.startsWith('audio/')) {
+                    const audio = document.createElement('audio');
+                    audio.controls = true;
+                    const source = document.createElement('source');
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        source.src = e.target.result;
+                        audio.appendChild(source);
+                        previewContainer.appendChild(audio);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    const noPreview = document.createElement('span');
+                    noPreview.className = 'no-preview';
+                    noPreview.textContent = 'Aperçu non disponible pour ce type de fichier';
+                    previewContainer.appendChild(noPreview);
+                }
+            } else {
+                fileNameSpan.textContent = 'Aucun fichier n\'a été sélectionné';
+                previewContainer.innerHTML = '';
+            }
+        }
+    </script>
+{% endblock %}

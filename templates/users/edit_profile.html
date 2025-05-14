@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifier mon profil{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <style>
+        .custom-file-upload {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--secondary, #328CC1);
+            color: white;
+            border-radius: var(--radius, 12px);
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: var(--accent, #FFD700);
+            color: var(--dark, #333333);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 5px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .preview-container {
+            margin-top: 10px;
+            max-width: 300px;
+        }
+
+        .preview-container img,
+        .preview-container video,
+        .preview-container audio {
+            max-width: 100%;
+            border-radius: var(--radius, 12px);
+            box-shadow: var(--shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
+        }
+        .comment-link {
+            font-weight: bold;
+            color: var(--secondary);
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .form-container {
+            background: linear-gradient(90deg, var(--white, #FFFFFF) 0%, var(--secondary, #F5F5F5) 100%);
+
+        }
+
+        .comment-link:hover {
+            color:var(--white) ;
+
+        }
+
+        .auth-container {
+
+            padding: 2rem;
+        }
+
+        .preview-container embed {
+            max-width: 100%;
+            border-radius: var(--radius, 12px);
+            box-shadow: var(--shadow, 0 4px 12px rgba(0, 0, 0, 0.1));
+        }
+
+        .preview-container .no-preview {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="form-container animated">
+        <h2 class="card-title" style="text-align: center; font-weight: bold; font-size: 55px;"><i class="fas fa-pen"></i>       Modifier mon profil</h2>
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('users.edit_profile') }}">
+            <div class="form-group">
+                <label for="nom"><i class="fas fa-user"></i> Nom</label>
+                <input type="text" id="nom" name="nom" value="{{ user.nom }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="statut"><i class="fas fa-align-left"></i> Statut</label>
+                <select id="statut" name="statut" value = "{{ user.statut }}" required>
+                    <option value="étudiant">Étudiant</option>
+                    <option value="enseignant">Enseignant</option>
+                    <option value="personnel">Personnel</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="bio"><i class="fas fa-align-left"></i> Biographie</label>
+                <textarea id="bio" name="bio" rows="4">{{ user.bio }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="photo"><i class="fas fa-image"></i> Nouvelle photo de profil</label>
+                <div class="custom-file-upload" onclick="document.getElementById('photo').click();">  <i class="fas fa-upload"></i>  Choisir un fichier</div>
+                <input type="file" id="photo" name="photo" class="file-input" onchange="updateFileNameAndPreview()">
+                <span class="file-name">Aucune photo n'a été sélectionné</span>
+                <div class="preview-container" id="preview"></div>
+            </div>
+
+            <div class="auth-footer" style="text-align: center;">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer les modifications
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function updateFileNameAndPreview() {
+            const fileInput = document.getElementById('photo');
+            const fileNameSpan = document.querySelector('.file-name');
+            const previewContainer = document.getElementById('preview');
+
+            if (fileInput.files.length > 0) {
+                fileNameSpan.textContent = fileInput.files[0].name;
+                const file = fileInput.files[0];
+                previewContainer.innerHTML = ''; // Efface l'aperçu précédent
+
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    const noPreview = document.createElement('span');
+                    noPreview.className = 'no-preview';
+                    noPreview.textContent = 'Aperçu non disponible pour ce type de fichier';
+                    previewContainer.appendChild(noPreview);
+                }
+            } else {
+                fileNameSpan.textContent = 'Aucun fichier n\'a été sélectionné';
+                previewContainer.innerHTML = '';
+            }
+        }
+    </script>
+{% endblock %}

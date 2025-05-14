@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Publication - ENSEA Connect{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_article.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_index.css') }}">
+
+{% endblock %}
+
+{% macro format_file_size(size) %}
+    {% if size is none %}
+        "Taille inconnue"
+    {% else %}
+        {% set size = size|float %}
+        {% if size >= 1024 * 1024 %}
+            {{ "%.2f"|format(size / (1024 * 1024)) }} Mo
+        {% elif size >= 1024 %}
+            {{ "%.2f"|format(size / 1024) }} Ko
+        {% else %}
+            {{ size|int }} octets
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{% macro afficher_commentaire(com) %}
+<div class="comment">
+    <img src="{{ url_for('static', filename='uploads/' + com.auteur.photo) if com.auteur.photo else 'https://via.placeholder.com/40' }}" alt="Avatar" class="comment-avatar">
+    <div class="comment-body">
+        <div class="comment-header">
+            <span class="comment-author">{{ com.auteur.nom }}</span>
+            <span class="comment-date" data-timestamp="{{ com.date_comment.isoformat() }}">{{ com.date_comment.strftime('%d/%m/%Y %H:%M') }}</span>
+        </div>
+        <p class="comment-content">{{ com.contenu }}</p>
+        <div class="comment-actions">
+            {% if current_user.is_authenticated %}
+                <button class="reply-btn" onclick="toggleReplyForm('reply-form-{{ com.id }}')">Répondre</button>
+            {% endif %}
+            {% if com.auteur_id == current_user.id %}
+                <div class="card-actions">
+                    <form action="{{ url_for('posts.supprimer_commentaire', comment_id=com.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="vote-btn" onclick="return confirm('Supprimer ce commentaire ?')"><i class="fas fa-trash"></i></button>
+                    </form>
+                    <a href="{{ url_for('posts.modifier_commentaire', comment_id=com.id) }}" class="comment-link"><i class="fas fa-edit"></i></a>
+                </div>
+            {% endif %}
+        </div>
+        {% if current_user.is_authenticated %}
+            <div class="reply-form" id="reply-form-{{ com.id }}">
+                <form method="POST" action="{{ url_for('posts.commenter', pub_id=publication.id) }}">
+                    <input type="hidden" name="parent_id" value="{{ com.id }}">
+                    <textarea name="contenu" rows="2" placeholder="Répondre..." required></textarea>
+                    <button type="submit" class="btn-primary">Répondre</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<div class="comment-thread">
+    {% for rep in get_enfants(com) %}
+        {{ afficher_commentaire(rep) }}
+    {% endfor %}
+</div>
+{% endmacro %}
+
+{% block content %}
+    <div class="article-container">
+        <div class="card animated" style="top: 0rem; width: 1150; height: 150; bottom: 0rem;">
+            <p class="card-content">{{ publication.texte }}</p>
+
+            {% if publication.url %}
+                <p><a href="{{ publication.url }}" target="_blank" class="card-link">🔗 Lien</a></p>
+            {% endif %}
+
+            {% if publication.media %}
+                {% set ext = publication.media.split('.')[-1].lower() %}
+                <div class="media-container">
+                    {% if ext in ['jpg', 'jpeg', 'png', 'gif'] %}
+                        <img src="{{ url_for('static', filename='uploads/' + publication.media) }}" class="card-media" width="1100" height="200">
+                    {% elif ext in ['mp4', 'webm', 'ogg'] %}
+                        <video width="1100" height="150" class="card-media" controls>
+                            <source src="{{ url_for('static', filename='uploads/' + publication.media) }}" type="video/{{ ext }}">
+                            Votre navigateur ne supporte pas la lecture vidéo.
+                        </video>
+                    {% elif ext in ['mp3', 'wav'] %}
+                        <audio controls class="card-media">
+                            <source src="{{ url_for('static', filename='uploads/' + publication.media) }}" type="audio/{{ ext }}">
+                            Votre navigateur ne supporte pas la lecture audio.
+                        </audio>
+                    {% else %}
+                        <a href="{{ url_for('static', filename='uploads/' + publication.media) }}" class="file-attachment" download>
+                            <i class="fas {{ 'fa-file-pdf' if ext == 'pdf' else 'fa-file-word' if ext in ['doc', 'docx'] else 'fa-file' }} file-icon"></i>
+                            <div class="file-info">
+                                <div class="file-name">{{ publication.media }}</div>
+                                <div class="file-size">{{ format_file_size(publication.file_size) }}</div>
+                            </div>
+                        </a>                    
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if publication.auteur_id == current_user.id %}
+                <div class="card-actions" style="justify-content: space-between;">
+                    <form action="{{ url_for('posts.supprimer_publication', pub_id=publication.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-primary" onclick="return confirm('Supprimer cette publication ?')"><i class="fas fa-trash"></i> Supprimer</button>
+                    </form>
+                    <a href="{{ url_for('posts.modifier_publication', pub_id=publication.id) }}" style="text-decoration: none;" class="btn-primary"><i class="fas fa-edit"></i> Modifier</a>
+                </div>
+            {% endif %}
+        </div> 
+
+        <div class="avant-pub">
+            <h3 style="color: #328CC1; font-size: 2rem;">Commentaires</h3>
+            <hr>
+        </div>
+        
+        
+        <div class="commentaires">
+            <div class="former-container">
+                <form method="POST" action="{{ url_for('posts.commenter', pub_id=publication.id) }}">
+                    <textarea name="contenu" rows="3" cols="50" placeholder="Nouveau commentaire..." required></textarea><br>
+                    <button type="submit" class="btn-primary">Commenter</button>
+                </form>
+            </div>
+    
+            <div class="comment-section">
+                {% for com in commentaires %}
+                    {{ afficher_commentaire(com) }}
+                {% endfor %}
+            </div>
+        </div>
+        
+        
+    </div>
+
+    <script>
+        function toggleReplyForm(formId) {
+            const form = document.getElementById(formId);
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
+{% endblock %}

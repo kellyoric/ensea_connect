@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Modifier commentaire{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <style>
+        .form-container {
+            background: linear-gradient(90deg, var(--white, #FFFFFF) 0%, var(--secondary, #F5F5F5) 100%);
+
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container animated">
+    <h2 class="card-title" style="text-align: center; font-weight: bold; font-size: 55px;">Modifier votre commentaire</h2>
+    <form method="POST" action="{{ url_for('posts.modifier_commentaire', comment_id=commentaire.id) }}">
+        <div class="form-group">
+            <label for="contenu"><i class="fas fa-comment"></i> Commentaire</label>
+            <textarea id="contenu" name="contenu" rows="4" cols="60" required>{{ commentaire.contenu }}</textarea>
+        </div>
+        <div class="auth-footer" style="text-align: center;">
+            <button type="submit" class="btn-primary" ><i class="fas fa-save"></i> Modifier</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

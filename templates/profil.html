@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil - ENSEA CONNECT{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_profil.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_index.css') }}">
+
+{% endblock %}
+
+{% macro format_file_size(size) %}
+    {% if size is none %}
+        "Taille inconnue"
+    {% else %}
+        {% set size = size|float %}
+        {% if size >= 1024 * 1024 %}
+            {{ "%.2f"|format(size / (1024 * 1024)) }} Mo
+        {% elif size >= 1024 %}
+            {{ "%.2f"|format(size / 1024) }} Ko
+        {% else %}
+            {{ size|int }} octets
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{% block content %}
+    <div class="profil-container" style="padding: 2rem;">
+        <div class="profil-header">
+            <img src="{{ url_for('static', filename='uploads/' + utilisateur.photo) }}" alt="Photo de profil" class="profil-photo">
+            <div class="profil-infos">
+                <h2>{{ utilisateur.prenom }} {{ utilisateur.nom }}</h2>
+                <p><strong>Statut :</strong> {{ utilisateur.statut }}</p>
+                <p><strong>Biographie :</strong> {{ utilisateur.bio or "Aucune biographie disponible." }}</p>
+                {% if current_user.id == utilisateur.id %}
+                    <a href="{{ url_for('users.edit_profile') }}" class="btn-primaryly"><i class="fas fa-pen"></i>   Modifier le profil</a>
+                {% endif %}
+            </div>
+            
+        </div>
+
+        <div class="avant-pub">
+            <h3 style="color: #328CC1; font-size: 2rem;">Publications</h3>
+
+            <hr class="profile-separator">
+        </div>
+
+        <div class="publications">
+            {% if publications %}
+                {% for pub in publications %}
+                    <article class="card">
+                        <div class="card-header">
+                            <span class="card-date">{{ pub.date_post.strftime('%d/%m/%Y à %H:%M') }}</span>
+                            <span class="category-tag">
+                                <i class="fas fa-tag"></i>   {{ pub.catégorie }}
+                            </span>
+                        </div>
+
+                        {% if pub.titre %}
+                            <h3 class="card-title">{{ pub.titre }}</h3>
+                        {% endif %}
+
+                        {% if pub.texte %}
+                            <div class="card-content">{{ pub.texte }}</div>
+                        {% endif %}
+
+                        {% if pub.media %}
+                            {% set ext = pub.media.split('.')[-1].lower() %}
+                            <div class="media-container">
+                                {% if ext in ['jpg', 'jpeg', 'png', 'gif'] %}
+                                    <img src="{{ url_for('static', filename='uploads/' + pub.media) }}" class="card-media">
+                                {% elif ext in ['mp4', 'webm', 'ogg'] %}
+                                    <video class="card-media" controls>
+                                        <source src="{{ url_for('static', filename='uploads/' + pub.media) }}" type="video/{{ ext }}">
+                                        Vidéo non supportée.
+                                    </video>
+                                {% elif ext in ['mp3', 'wav'] %}
+                                    <audio controls class="card-media">
+                                        <source src="{{ url_for('static', filename='uploads/' + pub.media) }}" type="audio/{{ ext }}">
+                                        Audio non supporté.
+                                    </audio>
+                                {% else %}
+                                    <a href="{{ url_for('static', filename='uploads/' + pub.media) }}" class="file-attachment" download>
+                                        <i class="fas {{ 'fa-file-pdf' if ext == 'pdf' else 'fa-file-word' if ext in ['doc', 'docx'] else 'fa-file' }} file-icon"></i>
+                                        <div class="file-info">
+                                            <div class="file-name">{{ pub.media }}</div>
+                                            <div class="file-size">{{ format_file_size(pub.file_size) }}</div>
+                                        </div>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if current_user.id == utilisateur.id %}
+
+                            <div class="card-actions" style="justify-content: space-between; display: flex;">
+                                <a href="{{ url_for('posts.modifier_publication', pub_id=pub.id) }}" class="btn-primaryly"><i class="fas fa-edit"></i>       Modifier</a>
+                                <form action="{{ url_for('posts.supprimer_publication', pub_id=pub.id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="mybutton" onclick="return confirm('Supprimer cette publication ?')"><i class="fas fa-trash"></i> Supprimer</button>
+                                </form>  
+                            </div>
+
+                        {% endif %}
+
+                    </article>
+                {% endfor %}
+            {% else %}
+                <div class="no-content">
+                    <p>Aucune publication pour le moment.</p>
+                    {% if current_user.id == utilisateur.id %}
+                        <a href="{{ url_for('posts.poster') }}" class="btn-primaryly">Publier maintenant</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+    </div>
+{% endblock %}

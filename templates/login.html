@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion - ENSEA Connect{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_linkedin.css') }}">
+    <style>
+        .comment-link {
+            font-weight: bold;
+            color: var(--secondary);
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .comment-link:hover {
+            color:var(--white) ;
+
+        }
+
+        .form-container {
+            background: linear-gradient(90deg, var(--white, #FFFFFF) 0%, var(--secondary, #F5F5F5) 100%);
+
+        }
+
+        .auth-container {
+            
+            padding: 2rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="form-container animated">
+        <div class="auth-header">
+            
+            <h2 class="card-title" style="text-align: center; font-weight: bold; font-size: 55px;"><i class="fas fa-sign-in-alt auth-icon"></i>         Connexion</h2>
+        </div>
+        
+        <form action="{{ url_for('auth.login') }}" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mot_de_passe"><i class="fas fa-lock"></i> Mot de passe</label>
+                <div class="password-input">
+                    <input type="password" id="mot_de_passe" name="mot_de_passe" required>
+                    
+                </div>
+            </div>
+            <div class="auth-footer" style="text-align: center;">
+                <button type="submit" class="btn-primary" style="text-align: center;">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+                <p>Pas encore inscrit ? <a href="{{ url_for('auth.signup') }}" class="comment-link">Créer un compte</a></p>
+                <p><a href="#" class="comment-link">Mot de passe oublié ?</a></p>
+            </div>
+
+        </form>
+        
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePassword = document.querySelector('.toggle-password');
+        const passwordInput = document.querySelector('#mot_de_passe');
+        
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        }
+    });
+</script>
+{% endblock %}

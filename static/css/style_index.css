@@ -1,0 +1,80 @@
+/* === STYLES POUR LA PAGE D'ACCUEIL === */
+.file-attachment {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--light, #F5F5F5);
+    border-radius: var(--radius, 12px);
+    padding: 0.75rem;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    text-decoration: none;
+    color: var(--dark, #333333);
+    max-width: 300px;
+  }
+  
+  .file-attachment:hover {
+    background-color: var(--secondary, #328CC1);
+    transform: translateY(-3px);
+  }
+  
+  .file-attachment:hover .file-icon,
+  .file-attachment:hover .file-name,
+  .file-attachment:hover .file-size {
+    color: var(--white, #FFFFFF);
+  }
+  
+  .file-icon {
+    font-size: 1.5rem;
+    color: var(--primary, #33b7eb);
+  }
+  
+  .file-info {
+    flex: 1;
+  }
+  
+  .file-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark, #333333);
+    word-break: break-all;
+  }
+  
+  .file-size {
+    font-size: 0.85rem;
+    color: #666;
+  }
+  
+  /* === RESPONSIVE === */
+  @media (max-width: 768px) {
+    .file-attachment {
+      max-width: 100%;
+      padding: 0.5rem;
+    }
+  
+    .file-icon {
+      font-size: 1.2rem;
+    }
+  
+    .file-name {
+      font-size: 0.9rem;
+    }
+  
+    .file-size {
+      font-size: 0.75rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .file-attachment {
+      gap: 0.75rem;
+    }
+  
+    .file-icon {
+      font-size: 1rem;
+    }
+  
+    .file-name {
+      font-size: 0.85rem;
+    }
+  }

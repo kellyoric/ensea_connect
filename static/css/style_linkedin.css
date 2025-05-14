@@ -1,0 +1,358 @@
+/* === STYLES CSS GÉNÉRAUX === */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  flex: 1;
+  min-height: 100vh;
+  font-size: 1.1rem;
+  padding-top: 80px;
+  padding-left: 20px;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+main {
+  display: flex;
+  justify-content: left;
+  flex: 1;
+  padding-top: 60px; /* Réduit de 100px à 60px pour éviter un espace excessif */
+  padding-left: 20px; /* Réduit pour s'aligner avec le body */
+}
+
+/* ====== ENSEA Connect - LinkedIn Style ====== */
+.page-layout.linkedin-style {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1rem 1rem 4rem 1rem; /* Réduit le padding supérieur pour éviter un espace excessif */
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  min-height: calc(100vh - 80px); /* Assure que le layout prend toute la hauteur disponible */
+}
+
+.sidebar {
+  width: 20%;
+  background-color: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  position: sticky;
+  top: 120px; /* Ajusté pour prendre en compte la hauteur du header */
+  align-self: flex-start;
+}
+
+.right-sidebar {
+  width: 20%;
+  background-color: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  position: sticky;
+  top: 120px; /* Ajusté pour prendre en compte la hauteur du header */
+  align-self: flex-start;
+}
+
+.btn-primaryly {
+  background-color: var(--secondary);
+  color: var(--white);
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.btn-primaryly:hover {
+  background-color: var(--accent);
+  color: var(--dark);
+}
+
+
+/* Ajout à la fin de style_linkedin.css */
+.feed-title {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  justify-content: center;
+  color: var(--secondary, #007bff);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.user-card {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: bold;
+}
+
+.user-card a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: var(--secondary);
+  color: var(--white);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.user-card a:hover {
+  background-color: var(--accent);
+  color: var(--dark);
+}
+
+.user-photo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+  border: 2px solid var(--secondary);
+}
+
+.user-card h3 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.user-info {
+  font-size: 1.2rem;
+  font-style: italic;
+  color: #555;
+}
+
+.stats-box {
+  background-color: var(--light);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.stats-box .count {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-item {
+  background-color: var(--light, #F5F5F5);
+  border-radius: var(--radius, 12px);
+  padding: 1rem;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.stat-item:hover {
+  background-color: var(--secondary, #328CC1);
+  transform: translateY(-3px);
+}
+
+.stat-item:hover .stat-value,
+.stat-item:hover .stat-label {
+  color: var(--white, #FFFFFF);
+}
+
+.stat-item i {
+  font-size: 1.5rem;
+  color: var(--primary, #33b7eb);
+  margin-bottom: 0.5rem;
+}
+
+.stat-item:hover i {
+  color: var(--white, #FFFFFF);
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dark, #333333);
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.card-author-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.author-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--secondary);
+}
+
+
+
+.author-name {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.author-name-link {
+  color: inherit;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: large;
+}
+
+.author-name-link:hover {
+  text-decoration: none;
+  color: var(--primary);
+}
+
+.stats-box a {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--secondary);
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+.filter-box h4 {
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+  color: var(--secondary);
+}
+
+.main-feed {
+  flex: 1;
+  width: 60%;
+  height: 100%;
+  top: 80px;
+  bottom: 0rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column; /* Assure que les publications s'empilent correctement */
+  gap: 0.5rem; /* Ajoute un espace entre les éléments enfants */
+}
+
+/* === POST BOX === */ 
+.post-box {
+  background-color: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  position: relative; /* Assure que la boîte de post reste dans le flux normal */
+}
+
+.post-box textarea {
+  font-size: 1.1rem;
+  width: 100%;
+  padding: 0.85rem;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  resize: none;
+}
+
+.post-actions {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+.fil {
+  overflow: scroll;
+ 
+}
+.post-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: var(--secondary);
+  color: var(--white);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.post-actions a:hover {
+  background-color: var(--accent);
+  color: var(--dark);
+}
+
+/* === NAVIGATION HEADER === */
+header nav a, header nav li {
+  font-size: 1.1rem;
+}
+
+/* === BOUTONS GÉNÉRAUX === */
+
+
+/* Style pour le titre "Fil d'actualité" */
+.feed-title {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--secondary, #007bff);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+  .page-layout.linkedin-style {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    position: static;
+  }
+
+  .right-sidebar {
+    width: 100%;
+    position: static;
+  }
+
+  .main-feed {
+    width: 100%;
+  }
+
+  .post-actions {
+    flex-direction: column;
+  }
+}
